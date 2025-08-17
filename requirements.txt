@@ -1,0 +1,13 @@
+facenet-pytorch==2.6.0
+Flask==3.1.1
+mtcnn==1.0.0
+numpy==1.26.4
+opencv-python==4.11.0.86
+psycopg2-binary==2.9.10
+requests==2.32.3
+torch==2.2.2
+torchvision==0.17.2
+easydict==1.13
+tensorboardX==2.6.2.2
+flask_cors
+pytz

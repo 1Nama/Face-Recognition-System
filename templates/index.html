@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .nav-container {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Face Recognition Demo</h1>
+    <div class="nav-container">
+        <button onclick="window.location.href='user-add-student.html'">User Add Student</button>
+        <button onclick="window.location.href='admin-add-student.html'">Admin Add Student</button>
+        <button onclick="window.location.href='delete-student.html'">Delete Student</button>
+        <button onclick="window.location.href='web-logging-capture.html'">Web Logging (Capture)</button>
+        <button onclick="window.location.href='web-logging-realtime.html'">Web Logging (Real-Time)</button>
+        <button onclick="window.location.href='random-recognition.html'">Random Recognition</button>
+        <button onclick="window.location.href='view-logs.html'">View Recognition Logs</button>
+        <button onclick="window.location.href='list-students.html'">List Students</button>
+        <!-- <button onclick="window.location.href='delete-old-logs.html'">Delete Debugging Logs</button>
+        <button onclick="window.location.href='clear-logs.html'">Delete Recognition Logs</button> -->
+    </div>
+</body>
+</html>

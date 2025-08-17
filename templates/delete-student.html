@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Student - Face Recognition Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .form-container {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-container label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .form-container input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .nav-button {
+            margin: 10px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Delete Student</h1>
+    <div class="nav-button">
+        <button onclick="window.location.href='index.html'">Back to Home</button>
+    </div>
+    <div class="form-container">
+        <h3>Delete Student</h3>
+        <label for="delete_college_id">College ID:</label>
+        <input type="text" id="delete_college_id" value="2" required>
+        <label for="delete_program_id">Program ID:</label>
+        <input type="text" id="delete_program_id" value="1" required>
+        <label for="delete_branch_id">Branch ID:</label>
+        <input type="text" id="delete_branch_id" value="1" required>
+        <label for="delete_student_id">Student ID:</label>
+        <input type="text" id="delete_student_id" required>
+        <button onclick="deleteStudent()">Delete Student</button>
+    </div>
+    <div id="output"></div>
+    <script>
+        async function deleteStudent() {
+            const college_id = document.getElementById('delete_college_id').value;
+            const program_id = document.getElementById('delete_program_id').value;
+            const branch_id = document.getElementById('delete_branch_id').value;
+            const student_id = document.getElementById('delete_student_id').value;
+
+            if (!college_id || !program_id || !branch_id || !student_id) {
+                document.getElementById('output').innerHTML = `<p>Error: All fields are required for deleting a student.</p>`;
+                return;
+            }
+
+            const data = [{
+                college_id: college_id,
+                program_id: program_id,
+                branch_id: branch_id,
+                student_id: student_id
+            }];
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/delete-student', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                let html = '<h3>Delete Student Result</h3>';
+                html += `<p>Message: ${result.message}</p>`;
+                html += `<p>Deleted: ${result.deleted}</p>`;
+                if (result.failed && result.failed.length > 0) {
+                    html += '<h4>Failed Records:</h4>';
+                    html += '<table><tr><th>College ID</th><th>Program ID</th><th>Branch ID</th><th>Student ID</th><th>Reason</th></tr>';
+                    result.failed.forEach(fail => {
+                        html += `<tr><td>${fail.college_id}</td><td>${fail.program_id}</td><td>${fail.branch_id}</td><td>${fail.student_id}</td><td>${fail.reason}</td></tr>`;
+                    });
+                    html += '</table>';
+                } else {
+                    html += '<p>No failures.</p>';
+                }
+                document.getElementById('output').innerHTML = html;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

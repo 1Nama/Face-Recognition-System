@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Students - Face Recognition Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .nav-button {
+            margin: 10px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>List Students</h1>
+    <div class="nav-button">
+        <button onclick="window.location.href='index.html'">Back to Home</button>
+    </div>
+    <button onclick="getStudents()">List Students</button>
+    <div id="output"></div>
+    <script>
+        async function getStudents() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/students');
+                const data = await response.json();
+                let html = '<h3>Students</h3>';
+                if (data.length === 0) {
+                    html += '<p>No students found.</p>';
+                } else {
+                    html += '<table><tr><th>College ID</th><th>Program ID</th><th>Branch ID</th><th>Student ID</th><th>Name</th></tr>';
+                    data.forEach(student => {
+                        html += `<tr><td>${student.college_id}</td><td>${student.program_id}</td><td>${student.branch_id}</td><td>${student.student_id}</td><td>${student.student_name}</td></tr>`;
+                    });
+                    html += '</table>';
+                }
+                document.getElementById('output').innerHTML = html;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

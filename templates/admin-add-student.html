@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Add Student - Face Recognition Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .form-container {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-container label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .form-container input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .nav-button {
+            margin: 10px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Add Student</h1>
+    <div class="nav-button">
+        <button onclick="window.location.href='index.html'">Back to Home</button>
+    </div>
+    <div class="form-container">
+        <h3>Admin Add Student</h3>
+        <label for="college_id">College ID:</label>
+        <input type="text" id="college_id" value="2" required>
+        <label for="program_id">Program ID:</label>
+        <input type="text" id="program_id" value="1" required>
+        <label for="branch_id">Branch ID:</label>
+        <input type="text" id="branch_id" value="1" required>
+        <label for="student_id">Student ID:</label>
+        <input type="text" id="student_id" required>
+        <label for="student_name">Student Name:</label>
+        <input type="text" id="student_name" required>
+        <label for="image_url">Image URL or Path:</label>
+        <input type="text" id="image_url" required>
+        <button onclick="adminAddStudent()">Submit Student</button>
+    </div>
+    <div id="output"></div>
+    <script>
+        async function adminAddStudent() {
+            const college_id = document.getElementById('college_id').value;
+            const program_id = document.getElementById('program_id').value;
+            const branch_id = document.getElementById('branch_id').value;
+            const student_id = document.getElementById('student_id').value;
+            const student_name = document.getElementById('student_name').value;
+            const image_url = document.getElementById('image_url').value;
+
+            if (!college_id || !program_id || !branch_id || !student_id || !student_name || !image_url) {
+                document.getElementById('output').innerHTML = `<p>Error: All fields are required for adding a student.</p>`;
+                return;
+            }
+
+            const data = [{
+                college_id: college_id,
+                program_id: program_id,
+                branch_id: branch_id,
+                student_id: student_id,
+                student_name: student_name,
+                image_url: image_url
+            }];
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/admin-add-student', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                let html = '<h3>Admin Add Student Result</h3>';
+                html += `<p>Message: ${result.message}</p>`;
+                html += `<p>Inserted: ${result.inserted}</p>`;
+                if (result.failed && result.failed.length > 0) {
+                    html += '<h4>Failed Records:</h4>';
+                    html += '<table><tr><th>College ID</th><th>Program ID</th><th>Branch ID</th><th>Student ID</th><th>Student Name</th><th>Reason</th></tr>';
+                    result.failed.forEach(fail => {
+                        html += `<tr><td>${fail.college_id}</td><td>${fail.program_id}</td><td>${fail.branch_id}</td><td>${fail.student_id}</td><td>${fail.student_name}</td><td>${fail.reason}</td></tr>`;
+                    });
+                    html += '</table>';
+                } else {
+                    html += '<p>No failures.</p>';
+                }
+                document.getElementById('output').innerHTML = html;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

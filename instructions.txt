@@ -1,0 +1,5 @@
+To run face_recognition.py file 
+you have to make 2 changes 
+
+1.change address at line 36 in face_recognition.py file with the address of anti_spoof_models folder.
+2.change address at line 30 and 31 in ant_spoof_predict.py file with address of deploy.prototxt and Widerface-RetinaFace.caffemodel file.

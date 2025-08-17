@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Debugging Logs - Face Recognition Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1, h3 {
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px auto;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            display: block;
+            text-align: center;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        .nav-button {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 600px) {
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+            #output {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Delete Debugging Logs</h1>
+
+    <div class="nav-button">
+        <button onclick="window.location.href='index.html'" aria-label="Navigate back to home page">Back to Home</button>
+    </div>
+
+    <button onclick="deleteOldLogs()" aria-label="Delete recognition logs older than one day">Delete Debugging Logs</button>
+
+    <div id="output" role="region" aria-live="polite"></div>
+
+    <script>
+        // Utility function to escape HTML to prevent XSS
+        function escapeHTML(str) {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        async function deleteOldLogs() {
+            const output = document.getElementById('output');
+            output.innerHTML = '<p>Deleting old logs...</p>';
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/delete_logs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // Add authentication header if required, e.g.:
+                        // 'Authorization': 'Bearer YOUR_TOKEN'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                output.innerHTML = `<p style="color: green;">${escapeHTML(result.message)}</p>`;
+            } catch (error) {
+                output.innerHTML = `<p style="color: red;">Failed to delete old logs: ${escapeHTML(error.message)}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

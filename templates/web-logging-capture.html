@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Logging (Capture) - Face Recognition Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-container {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: none;
+        }
+        .form-container label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .form-container input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-container video {
+            width: 100%;
+            max-width: 375px;
+            height: auto;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-container canvas {
+            display: none;
+        }
+        .nav-button {
+            margin: 10px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Web Logging (Capture)</h1>
+    <div class="nav-button">
+        <button onclick="window.location.href='index.html'">Back to Home</button>
+    </div>
+    <button onclick="toggleWebLoggingForm()">Start Web Logging (Capture)</button>
+    <div class="form-container" id="webLoggingForm">
+        <h3>Web Logging (Capture)</h3>
+        <label for="web_logging_college_id">College ID:</label>
+        <input type="text" id="web_logging_college_id" value="2" required>
+        <label for="web_logging_program_id">Program ID:</label>
+        <input type="text" id="web_logging_program_id" value="1" required>
+        <label for="web_logging_branch_id">Branch ID:</label>
+        <input type="text" id="web_logging_branch_id" value="1" required>
+        <label for="web_logging_student_id">Student ID:</label>
+        <input type="text" id="web_logging_student_id" required>
+        <label>Webcam Feed:</label>
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="canvas" width="375" height="500"></canvas>
+        <button onclick="captureImage()">Capture Image</button>
+        <button onclick="webLogging()" id="submitWebLogging" style="display: none;">Submit</button>
+    </div>
+    <div id="output"></div>
+    <script>
+        let stream = null;
+
+        async function toggleWebLoggingForm() {
+            const form = document.getElementById('webLoggingForm');
+            const webcam = document.getElementById('webcam');
+            const submitButton = document.getElementById('submitWebLogging');
+
+            if (!form || !webcam || !submitButton) {
+                document.getElementById('output').innerHTML = `<p>Error: Required elements for Web Logging (Capture) are missing.</p>`;
+                return;
+            }
+
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+                submitButton.style.display = 'none';
+                webcam.style.display = 'block';
+                webcam.srcObject = null;
+
+                if (!window.isSecureContext) {
+                    document.getElementById('output').innerHTML = `<p>Error: Webcam access requires a secure context (HTTPS or localhost).</p>`;
+                    form.style.display = 'none';
+                    return;
+                }
+
+                try {
+                    console.log("Attempting to access webcam...");
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    console.log("Webcam stream started successfully.");
+                    webcam.srcObject = stream;
+                    webcam.play();
+                } catch (error) {
+                    console.error("Error accessing webcam:", error);
+                    let errorMessage = 'Error accessing webcam: ';
+                    if (error.name === 'NotAllowedError') {
+                        errorMessage += 'Permission denied. Please allow webcam access in your browser settings.';
+                    } else if (error.name === 'NotFoundError') {
+                        errorMessage += 'No webcam found. Please ensure a webcam is connected and not in use by another application.';
+                    } else if (error.name === 'OverconstrainedError') {
+                        errorMessage += 'Webcam constraints not supported. Try using a different device or resolution.';
+                    } else {
+                        errorMessage += error.message;
+                    }
+                    document.getElementById('output').innerHTML = `<p>${errorMessage}</p>`;
+                    form.style.display = 'none';
+                }
+            } else {
+                form.style.display = 'none';
+                if (stream) {
+                    console.log("Stopping webcam stream...");
+                    stream.getTracks().forEach(track => {
+                        track.stop();
+                        console.log("Track stopped:", track);
+                    });
+                    stream = null;
+                }
+                webcam.srcObject = null;
+                webcam.pause();
+                submitButton.style.display = 'none';
+            }
+        }
+
+        function captureImage() {
+            const webcam = document.getElementById('webcam');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            const submitButton = document.getElementById('submitWebLogging');
+
+            if (!webcam || !canvas || !context || !submitButton) {
+                document.getElementById('output').innerHTML = `<p>Error: Required elements for image capture are missing.</p>`;
+                return;
+            }
+
+            context.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+
+            if (stream) {
+                console.log("Stopping webcam stream after capture...");
+                stream.getTracks().forEach(track => {
+                    track.stop();
+                    console.log("Track stopped:", track);
+                });
+                stream = null;
+            }
+            webcam.srcObject = null;
+            webcam.pause();
+
+            webcam.style.display = 'none';
+            submitButton.style.display = 'block';
+        }
+
+        async function webLogging() {
+            try {
+                const college_id = document.getElementById('web_logging_college_id').value;
+                const program_id = document.getElementById('web_logging_program_id').value;
+                const branch_id = document.getElementById('web_logging_branch_id').value;
+                const student_id = document.getElementById('web_logging_student_id').value;
+                const canvas = document.getElementById('canvas');
+
+                if (!college_id || !program_id || !branch_id || !student_id || !canvas) {
+                    document.getElementById('output').innerHTML = `<p>Error: All fields and canvas are required for Web Logging (Capture).</p>`;
+                    return;
+                }
+
+                const base64Image = canvas.toDataURL('image/jpeg');
+
+                const data = {
+                    college_id: college_id,
+                    program_id: program_id,
+                    branch_id: branch_id,
+                    student_id: student_id,
+                    image: base64Image
+                };
+
+                document.getElementById('output').innerHTML = `<p>Verifying identity with captured image...</p>`;
+
+                const response = await fetch('http://127.0.0.1:5000/web_logging1', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                let html = '<h3>Web Logging (Capture) Result</h3>';
+                if (result.error) {
+                    html += `<p>Error: ${result.error}</p>`;
+                } else {
+                    html += `<p>Label: ${result.label}</p>`;
+                    html += `<p>Access: ${result.access ? 'Granted' : 'Denied'}</p>`;
+                    html += result.student_name ? `<p>Student Name: ${result.student_name}</p>` : '<p>Student Name: None</p>';
+                    html += result.similarity != null ? `<p>Similarity: ${result.similarity.toFixed(2)}</p>` : '<p>Similarity: None</p>';
+                }
+                document.getElementById('output').innerHTML = html;
+                document.getElementById('webLoggingForm').style.display = 'none';
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

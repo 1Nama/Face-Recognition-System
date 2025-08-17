@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Recognition Logs - Face Recognition Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1, h3 {
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px auto;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            display: block;
+            text-align: center;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .nav-button {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 600px) {
+            th, td {
+                font-size: 14px;
+                padding: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>View Recognition Logs</h1>
+
+    <div class="nav-button">
+        <button onclick="window.location.href='index.html'" aria-label="Navigate back to home page">Back to Home</button>
+    </div>
+
+    <button onclick="getLogs()" aria-label="Fetch and display recognition logs">View Recognition Logs</button>
+
+    <div id="output" role="region" aria-live="polite"></div>
+
+    <script>
+        // Utility function to escape HTML to prevent XSS
+        function escapeHTML(str) {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        async function getLogs() {
+            const output = document.getElementById('output');
+            output.innerHTML = '<p>Loading...</p>';
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/get-recognition-logs');
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+                const data = await response.json();
+                
+                let html = '<h3>Recognition Logs</h3>';
+                if (!Array.isArray(data) || data.length === 0) {
+                    html += '<p>No logs available.</p>';
+                } else {
+                    html += `<table>
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Time</th>
+                                    <th scope="col">College ID</th>
+                                    <th scope="col">Program ID</th>
+                                    <th scope="col">Branch ID</th>
+                                    <th scope="col">Student ID</th>
+                                    <th scope="col">Student Name</th>
+                                </tr>`;
+                    data.forEach(log => {
+                        html += `<tr>
+                                    <td>${escapeHTML(log.date || '')}</td>
+                                    <td>${escapeHTML(log.time || '')}</td>
+                                    <td>${escapeHTML(log.college_id || '')}</td>
+                                    <td>${escapeHTML(log.program_id || '')}</td>
+                                    <td>${escapeHTML(log.branch_id || '')}</td>
+                                    <td>${escapeHTML(log.student_id || '')}</td>
+                                    <td>${escapeHTML(log.student_name || '')}</td>
+                                 </tr>`;
+                    });
+                    html += '</table>';
+                }
+                output.innerHTML = html;
+            } catch (error) {
+                output.innerHTML = `<p style="color: red;">Failed to load logs: ${escapeHTML(error.message)}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
